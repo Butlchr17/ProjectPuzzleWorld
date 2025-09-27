@@ -87,6 +87,4 @@ crashlytics-build.properties
 .vsconfig
 
 /Assets/Samples/
-/Assets/Samples/**/*.meta
-# Optional: Explicitly ignore associated meta files if needed
-PuzzleWorld/Assets/Samples.meta
+/Assets/Samples/**/*.meta  # Optional: Explicitly ignore associated meta files if needed
