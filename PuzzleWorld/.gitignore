@@ -87,4 +87,5 @@ crashlytics-build.properties
 .vsconfig
 
 /Assets/Samples/
-/Assets/Samples/**/*.meta  # Optional: Explicitly ignore associated meta files if needed
+/Assets/Samples/**/*.meta  
+# Optional: Explicitly ignore associated meta files if needed
