@@ -11,6 +11,6 @@ namespace PuzzleWorld {
             this.type = type;
             GetComponent<SpriteRenderer>().sprite = type.sprite;
         }
-        public OrbType GetType() => type;
+        public OrbType GetOrbType() => type;
     }
 }

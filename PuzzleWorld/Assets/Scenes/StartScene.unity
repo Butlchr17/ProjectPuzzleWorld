@@ -152,12 +152,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12c28d0043bceff42aacf740c3bed0f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PuzzleWorld.Match3
-  width: 8
-  height: 8
+  width: 6
+  height: 5
   cellSize: 1
   originPosition: {x: 0, y: 0, z: 0}
   debug: 1
-  orbPrefab: {fileID: 8092883753786980, guid: 8e9911e27088cd34c911d8b66cf2c3e9, type: 3}
+  orbPrefab: {fileID: 1954144773}
   orbTypes:
   - {fileID: 11400000, guid: 537883c7bd758ea4b8512d6258eeb9f4, type: 2}
   - {fileID: 11400000, guid: c90411ee5cb3c60488de1ee2b5377203, type: 2}
@@ -167,6 +167,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 69e59e46564a4cd4d97f58242e3dcec8, type: 2}
   ease: 5
   explosion: {fileID: 0}
+  poolSize: 30
+  totalScore: 0
 --- !u!4 &650230118
 Transform:
   m_ObjectHideFlags: 0
@@ -470,8 +472,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 822512040}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.08717229, y: 0.89959055, z: -0.21045254, w: -0.3726226}
-  m_LocalPosition: {x: 12.674486, y: 8.872139, z: 12.674487}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3, y: 2.5, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -635,6 +637,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1954144773 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8092883753786980, guid: 8e9911e27088cd34c911d8b66cf2c3e9,
+    type: 3}
+  m_PrefabInstance: {fileID: 5309214292865099119}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b09d63a1221ef14399b38628e7be5f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PuzzleWorld.Orb
 --- !u!1001 &5309214292865099119
 PrefabInstance:
   m_ObjectHideFlags: 0
