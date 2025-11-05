@@ -1,15 +1,16 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace PuzzleWorld {
-    [RequireComponent(typeof(SpriteRenderer))]
+    [RequireComponent(typeof(Image))]
     public class Orb : MonoBehaviour
     {
         public OrbType type;
-
+        public Vector2Int gridPosition; // Position in the grid
         public void SetType(OrbType type)
         {
             this.type = type;
-            GetComponent<SpriteRenderer>().sprite = type.sprite;
+            GetComponent<Image>().sprite = type.sprite;
         }
         public OrbType GetOrbType() => type;
     }

@@ -5,13 +5,15 @@ using UnityEngine.InputSystem;
 namespace PuzzleWorld
 {
     [RequireComponent(typeof(PlayerInput))]
-    public class InputReader :MonoBehaviour
+    public class InputReader : MonoBehaviour
     {
         PlayerInput playerInput;
         InputAction selectAction;
         InputAction fireAction;
 
-        public event Action Fire;
+        public event Action PointerPressed;
+        public event Action PointerReleased;
+
         public Vector2 Selected => selectAction.ReadValue<Vector2>();
 
         void Start()
@@ -20,16 +22,14 @@ namespace PuzzleWorld
             selectAction = playerInput.actions["Select"];
             fireAction = playerInput.actions["Fire"];
 
-            fireAction.performed += OnFire;
+            fireAction.started += ctx => PointerPressed?.Invoke();
+            fireAction.canceled += ctx => PointerReleased?.Invoke();
         }
 
-        void Destroy()
+        void OnDestroy()
         {
-            fireAction.performed -= OnFire;
+            fireAction.started -= ctx => PointerPressed?.Invoke();
+            fireAction.canceled -= ctx => PointerReleased?.Invoke();
         }
-
-        void OnFire(InputAction.CallbackContext obj) => Fire?.Invoke();
-
     }
 }
-

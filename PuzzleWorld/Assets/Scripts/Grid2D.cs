@@ -1,8 +1,7 @@
 using System;
 using TMPro;
-using Unity.Mathematics;
-using UnityEditor.PackageManager;
 using UnityEngine;
+using UnityEngine.UI; 
 
 namespace PuzzleWorld
 {
@@ -18,14 +17,9 @@ namespace PuzzleWorld
 
         public event Action<int, int, T> OnValueChangeEvent;
 
-        public static GridSystem2D<T> VerticalGrid(int width, int height, float cellSize, Vector3 originPosition, bool debug = false)
+        public static GridSystem2D<T> UIGrid(int width, int height, float cellSize, Vector3 originPosition, RectTransform parentTransform, bool debug = false)
         {
-            return new GridSystem2D<T>(width, height, cellSize, originPosition, new VerticalConverter(), debug);
-        }
-        
-        public static GridSystem2D<T> HorizontalGrid(int width, int height, float cellSize, Vector3 originPosition, bool debug = false)
-        {
-            return new GridSystem2D<T>(width, height, cellSize, originPosition, new HorizontalConverter(), debug);
+            return new GridSystem2D<T>(width, height, cellSize, originPosition, new UIConverter(parentTransform), debug);
         }
 
         public GridSystem2D(int width, int height, float cellSize, Vector3 originPosition, CoordinateConverter coordinateConverter, bool debug)
@@ -34,7 +28,7 @@ namespace PuzzleWorld
             this.height = height;
             this.cellSize = cellSize;
             this.originPosition = originPosition;
-            this.coordinateConverter = coordinateConverter ?? new VerticalConverter();
+            this.coordinateConverter = coordinateConverter ?? new UIConverter(null); // Default to UI, but parent might need setting later
 
             gridArray = new T[width, height];
 
@@ -83,37 +77,32 @@ namespace PuzzleWorld
 
         void DrawDebugLines()
         {
-            const float duration = 100f;
-            var parent = new GameObject("Debugging");
+            if (coordinateConverter is not UIConverter uiConverter) return;
+
+            var parent = uiConverter.parentTransform?.gameObject ?? new GameObject("Debugging"); // Fallback if no parent
 
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
-                    //TODO:  center text in 3D
-                    CreateWorldText(parent, x + "," + y, GetWorldPositionCenter(x, y), coordinateConverter.Forward);
-                    Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x, y + 1), Color.white, duration);
-                    Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x + 1, y), Color.white, duration);
+                    CreateUIWorldText(parent, x + "," + y, GetWorldPositionCenter(x, y));
                 }
             }
-
-            Debug.DrawLine(GetWorldPosition(0, height), GetWorldPosition(width, height), Color.white, duration);
-            Debug.DrawLine(GetWorldPosition(width, 0), GetWorldPosition(width, height), Color.white, duration);
         }
 
-        TextMeshPro CreateWorldText(GameObject parent, string text, Vector3 position, Vector3 dir, int fontSize = 2, Color color = default, TextAlignmentOptions textAnchor = TextAlignmentOptions.Center, int sortingOrder = 0)
+        TextMeshProUGUI CreateUIWorldText(GameObject parent, string text, Vector3 localPosition, float fontSize = 0.5f, Color color = default)
         {
-            GameObject gameObject = new GameObject("DebugText_" + text, typeof(TextMeshPro));
+            GameObject gameObject = new GameObject("DebugText_" + text, typeof(TextMeshProUGUI), typeof(RectTransform));
             gameObject.transform.SetParent(parent.transform);
-            gameObject.transform.position = position;
-            gameObject.transform.forward = dir;
+            RectTransform rect = gameObject.GetComponent<RectTransform>();
+            rect.anchoredPosition = localPosition;
+            rect.sizeDelta = new Vector2(100, 50); // Adjust as needed
 
-            TextMeshPro textMeshPro = gameObject.GetComponent<TextMeshPro>();
+            TextMeshProUGUI textMeshPro = gameObject.GetComponent<TextMeshProUGUI>();
             textMeshPro.text = text;
             textMeshPro.fontSize = fontSize;
             textMeshPro.color = color == default ? Color.white : color;
-            textMeshPro.alignment = textAnchor;
-            textMeshPro.GetComponent<MeshRenderer>().sortingOrder = sortingOrder;
+            textMeshPro.alignment = TextAlignmentOptions.Center;
 
             return textMeshPro;
         }
@@ -122,61 +111,35 @@ namespace PuzzleWorld
         {
             public abstract Vector3 GridToWorld(int x, int y, float cellSize, Vector3 originPosition);
             public abstract Vector3 GridToWorldCenter(int x, int y, float cellSize, Vector3 originPosition);
-            public abstract Vector2Int  WorldToGrid(Vector3 worldPosition, float cellSize, Vector3 originPosition);
-            public abstract Vector3 Forward { get; }
+            public abstract Vector2Int WorldToGrid(Vector3 worldPosition, float cellSize, Vector3 originPosition);
         }
 
-        /// <summary>
-        /// A coordinate converter for vertical grids, where the grid lies on the x-y plane.
-        /// </summary>
-        public class VerticalConverter : CoordinateConverter
+        public class UIConverter : CoordinateConverter
         {
+            public RectTransform parentTransform;
+
+            public UIConverter(RectTransform parent)
+            {
+                parentTransform = parent;
+            }
+
             public override Vector3 GridToWorld(int x, int y, float cellSize, Vector3 originPosition)
             {
-                return new Vector3(x, y, 0) * cellSize + originPosition;
+                return new Vector3(x * cellSize, -y * cellSize, 0) + originPosition;
             }
 
             public override Vector3 GridToWorldCenter(int x, int y, float cellSize, Vector3 originPosition)
             {
-                return new Vector3(x + 0.5f, y + 0.5f, 0) * cellSize + originPosition;
+                return new Vector3((x + 0.5f) * cellSize, -(y + 0.5f) * cellSize, 0) + originPosition;
             }
 
             public override Vector2Int WorldToGrid(Vector3 worldPosition, float cellSize, Vector3 originPosition)
             {
-                Vector3 gridPosition = (worldPosition - originPosition) / cellSize;
-                var x = Mathf.FloorToInt(gridPosition.x);
-                var y = Mathf.FloorToInt(gridPosition.y);
+                Vector3 localPos = (worldPosition - originPosition);
+                var x = Mathf.FloorToInt(localPos.x / cellSize);
+                var y = Mathf.FloorToInt(-localPos.y / cellSize);
                 return new Vector2Int(x, y);
             }
-
-            public override Vector3 Forward => Vector3.forward;
         }
-
-        /// <summary>
-        /// A coordinate converter for horizontal grids, where the grid lies on the x-z plane.
-        /// </summary>
-        public class HorizontalConverter : CoordinateConverter
-        {
-            public override Vector3 GridToWorldCenter(int x, int y, float cellSize, Vector3 originPosition)
-            {
-                return new Vector3(x + 0.5f, 0, y + 0.5f) * cellSize + originPosition;
-            }
-            public override Vector3 GridToWorld(int x, int y, float cellSize, Vector3 originPosition)
-            {
-                return new Vector3(x, 0, y) * cellSize + originPosition;
-            }
-
-            public override Vector2Int WorldToGrid(Vector3 worldPosition, float cellSize, Vector3 originPosition)
-            {
-                Vector3 gridPosition = (worldPosition - originPosition) / cellSize;
-                var x = Mathf.FloorToInt(gridPosition.x);
-                var y = Mathf.FloorToInt(gridPosition.z);
-                return new Vector2Int(x, y);
-            }
-
-            public override Vector3 Forward => Vector3.up;
-        }
-
     }
 }
-
