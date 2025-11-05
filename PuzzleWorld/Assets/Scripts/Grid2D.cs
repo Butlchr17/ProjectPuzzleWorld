@@ -1,7 +1,5 @@
 using System;
 using TMPro;
-using Unity.Mathematics;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
 namespace PuzzleWorld
@@ -38,6 +36,15 @@ namespace PuzzleWorld
 
             gridArray = new T[width, height];
 
+            //if (debug)
+            //{
+            //    DrawDebugLines();
+            //}
+        }
+
+        //Draw debug lines and text in the Unity editor to visualize the grid
+        public void DrawDebugIfEnabled(bool debug)
+        {
             if (debug)
             {
                 DrawDebugLines();

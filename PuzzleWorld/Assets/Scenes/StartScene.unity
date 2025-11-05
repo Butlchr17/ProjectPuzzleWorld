@@ -166,7 +166,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cc4c104b54855a6409c987e79a5e1c5c, type: 2}
   - {fileID: 11400000, guid: 69e59e46564a4cd4d97f58242e3dcec8, type: 2}
   ease: 5
-  explosion: {fileID: 0}
   poolSize: 30
   totalScore: 0
 --- !u!4 &650230118
@@ -356,7 +355,7 @@ GameObject:
   - component: {fileID: 822512041}
   m_Layer: 0
   m_Name: MainCamera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

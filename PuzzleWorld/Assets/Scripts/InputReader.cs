@@ -11,7 +11,11 @@ namespace PuzzleWorld
         InputAction selectAction;
         InputAction fireAction;
 
-        public event Action Fire;
+        //public event Action Fire;
+
+        public event Action OnPointerDownEvent;
+        public event Action OnPointerUpEvent;
+
         public Vector2 Selected => selectAction.ReadValue<Vector2>();
 
         void Start()
@@ -20,15 +24,23 @@ namespace PuzzleWorld
             selectAction = playerInput.actions["Select"];
             fireAction = playerInput.actions["Fire"];
 
-            fireAction.performed += OnFire;
+            //fireAction.performed += OnFire;
+            fireAction.started += ctx => OnPointerDownEvent?.Invoke();
+            fireAction.canceled += ctx => OnPointerUpEvent?.Invoke();
         }
 
-        void Destroy()
+        //void Destroy()
+        //{
+        //    fireAction.performed -= OnFire;
+        //}
+
+        void OnDestroy()
         {
-            fireAction.performed -= OnFire;
+            fireAction.started -= ctx => OnPointerDownEvent?.Invoke();
+            fireAction.canceled -= ctx => OnPointerUpEvent?.Invoke();
         }
 
-        void OnFire(InputAction.CallbackContext obj) => Fire?.Invoke();
+        //void OnFire(InputAction.CallbackContext obj) => Fire?.Invoke();
 
     }
 }
